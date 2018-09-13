@@ -6,4 +6,8 @@
     <string name="password">Password</string>
     <string name="validate_password">Validate password</string>
     <string name="sign_up">Sign Up</string>
+    <string name="poster_name">Posted by:</string>
+    <string name="post_title">Post title</string>
+    <string name="click_image">Click over the image to set a picture</string>
+    <string name="post_description">Post description</string>
 </resources>
