@@ -8,6 +8,8 @@
     <string name="sign_up">Sign Up</string>
     <string name="poster_name">Posted by:</string>
     <string name="post_title">Post title</string>
-    <string name="click_image">Click over the image to set a picture</string>
+    <string name="click_image">Click on the image to set a picture</string>
     <string name="post_description">Post description</string>
+    <string name="location">Location:</string>
+    <string name="post">Post</string>
 </resources>
