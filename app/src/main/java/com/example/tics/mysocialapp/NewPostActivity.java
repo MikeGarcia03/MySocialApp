@@ -29,10 +29,7 @@ import com.google.android.gms.tasks.Continuation;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.database.DataSnapshot;
-import com.google.firebase.database.DatabaseError;
-import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.ValueEventListener;
+import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.OnProgressListener;
 import com.google.firebase.storage.StorageReference;
@@ -55,13 +52,14 @@ public class NewPostActivity extends AppCompatActivity {
     private LocationRequest locationRequest;
     private FusedLocationProviderClient fusedLocationProviderClient;
     private Geocoder geocoder;
-    private DatabaseReference mySocialApp;
     private ImagePicker imagePicker;
     private Uri setectedUri;
     private ImageButton imageSelected;
     private TextView addressLocation;
     private EditText titleEdiTxt, descriptionEdiTxt;
     private String imageUrl;
+
+    private FirebaseFirestore mFirestore;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -74,6 +72,7 @@ public class NewPostActivity extends AppCompatActivity {
         fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(this);
         locationRequest = new LocationRequest();
         locationCallback = new LocationCallback() {
+
 
             @Override
             public void onLocationResult(LocationResult locationResult) {
@@ -91,9 +90,11 @@ public class NewPostActivity extends AppCompatActivity {
         findViewById(R.id.submitPostButton).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                submitPost();
+                submitImageToStorage();
             }
         });
+
+        mFirestore = FirebaseFirestore.getInstance();
     }
 
     private void submitPost() {
@@ -101,77 +102,44 @@ public class NewPostActivity extends AppCompatActivity {
         final String description = descriptionEdiTxt.getText().toString();
         submitImageToStorage();
 
-        // Title is required
         if (TextUtils.isEmpty(title)) {
             titleEdiTxt.setError(REQUIRED);
             return;
         }
 
-        // Body is required
         if (TextUtils.isEmpty(description)) {
             descriptionEdiTxt.setError(REQUIRED);
             return;
         }
 
-        /*if (TextUtils.isEmpty(imageUrl)) {
-            descriptionEdiTxt.setError(REQUIRED);
-            return;
-        }*/
-
         final String userId = getUid();
-        mySocialApp.child("users").child(userId).addListenerForSingleValueEvent(
-                new ValueEventListener() {
-                    @Override
-                    public void onDataChange(DataSnapshot dataSnapshot) {
 
-                        writeNewPost(userId, imageUrl, title, description);
-                        finish();
-                        // Get user value
-                        /*User user = dataSnapshot.getValue(User.class);
-
-                        // [START_EXCLUDE]
-                        if (user == null) {
-                            // User is null, error out
-                            Log.e(TAG, "User " + userId + " is unexpectedly null");
-                            Toast.makeText(NewPostActivity.this,
-                                    "Error: could not fetch user.",
-                                    Toast.LENGTH_SHORT).show();
-                        } else {
-                            // Write new post
-                            writeNewPost(userId, imageUrl, title, description);
-                        }
-
-                        // Finish this Activity, back to the stream
-                        setEditingEnabled(true);
-                        finish();
-                        // [END_EXCLUDE]*/
-                    }
-
-                    @Override
-                    public void onCancelled(DatabaseError databaseError) {
-                        /*Log.w(TAG, "getUser:onCancelled", databaseError.toException());
-                        // [START_EXCLUDE]
-                        setEditingEnabled(true);*/
-                        // [END_EXCLUDE]
-                    }
-                });
+        writeNewPost(userId, imageUrl, title, description);
     }
 
     public String getUid() {
         return FirebaseAuth.getInstance().getCurrentUser().getUid();
     }
 
-    private void writeNewPost(String userId, String image, String title, String body) {
+    private void writeNewPost(String userId, String image, String title, String description) {
 
-        String key = mySocialApp.child("posts").push().getKey();
-        Post post = new Post(userId, image, title, body);
-        Map<String, Object> postValues = post.toMap();
+        Map<String, Object> map = new HashMap<>();
+        map.put("userId", userId);
+        map.put("image", image);
+        map.put("title", title);
+        map.put("description", description);
 
-        Map<String, Object> childUpdates = new HashMap<>();
-        childUpdates.put("/posts/" + key, postValues);
-        //childUpdates.put("/user-posts/" + userId + "/" + key, postValues);
+        mFirestore.collection("post").document().set(map).addOnCompleteListener(new OnCompleteListener<Void>() {
+            @Override
+            public void onComplete(@NonNull Task<Void> task) {
+                if (task.isSuccessful()) {
+                    Toast.makeText(NewPostActivity.this, "Bien", Toast.LENGTH_SHORT).show();
+                } else {
+                    Toast.makeText(NewPostActivity.this, "Mal", Toast.LENGTH_SHORT).show();
 
-        mySocialApp.updateChildren(childUpdates);
+                }
+            }
+        });
     }
 
     private void setAddressNameFromLocation() {
@@ -219,28 +187,27 @@ public class NewPostActivity extends AppCompatActivity {
     }
 
     private void submitImageToStorage() {
-        final StorageReference storageReference = FirebaseStorage.getInstance().getReference("post_images");
-        storageReference.putFile(setectedUri).addOnProgressListener(new OnProgressListener<UploadTask.TaskSnapshot>() {
-            @Override
-            public void onProgress(UploadTask.TaskSnapshot taskSnapshot) {
-
-            }
-        }).continueWithTask(new Continuation<UploadTask.TaskSnapshot, Task<Uri>>() {
+        final StorageReference storageReference = FirebaseStorage.getInstance()
+                .getReference("post_images"+ String.valueOf(Math.random()));
+        storageReference.putFile(setectedUri)
+                .continueWithTask(new Continuation<UploadTask.TaskSnapshot, Task<Uri>>() {
             @Override
             public Task<Uri> then(@NonNull Task<UploadTask.TaskSnapshot> task) throws Exception {
+                if (!task.isSuccessful()) {
+                    throw task.getException();
+                }
                 return storageReference.getDownloadUrl();
             }
         }).addOnCompleteListener(new OnCompleteListener<Uri>() {
             @Override
             public void onComplete(@NonNull Task<Uri> task) {
                 if (task.isSuccessful()) {
-
                     Uri downloadUri = task.getResult();
                     imageUrl = downloadUri.toString();
-                    //TODO upload to database Post data + imageUrl
                 }
             }
         });
+        submitPost();
     }
 
     @Override
