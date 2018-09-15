@@ -81,7 +81,7 @@
                 android:textColor="@android:color/black"
                 android:textSize="14sp"/>
             <Button
-                android:id="@+id/postButton"
+                android:id="@+id/submitPostButton"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"

@@ -36,6 +36,7 @@ public class LogInActivity extends AppCompatActivity {
                             @Override
                             public void onComplete(@NonNull Task<AuthResult> task) {
                                 if(task.isSuccessful()){
+                                    startActivity(new Intent(LogInActivity.this,NewPostActivity.class));
                                     Toast.makeText(LogInActivity.this, "Process finished successful", Toast.LENGTH_LONG).show();
                                 } else {
                                     Toast.makeText(LogInActivity.this, "Pass o Usuario incorrecto", Toast.LENGTH_LONG).show();
