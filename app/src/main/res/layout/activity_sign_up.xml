@@ -14,7 +14,7 @@
         android:layout_margin="10dp"
         android:padding="10dp"
         android:orientation="vertical"
-        tools:context=".LogInActivity">
+        tools:context=".SignInActivity">
 
         <ImageView
             android:layout_width="wrap_content"
@@ -38,6 +38,7 @@
             android:layout_marginStart="10dp"
             android:layout_marginEnd="10dp"
             android:textColor="@android:color/black"
+            android:inputType="text"
             android:textSize="14sp"/>
         <TextView
             android:layout_width="wrap_content"
@@ -54,7 +55,7 @@
             android:layout_height="wrap_content"
             android:layout_marginStart="10dp"
             android:layout_marginEnd="10dp"
-            android:inputType="textPassword"
+            android:inputType="text"
             android:textColor="@android:color/black"
             android:textSize="14sp"/>
         <TextView
@@ -73,6 +74,7 @@
             android:layout_marginStart="10dp"
             android:layout_marginEnd="10dp"
             android:textColor="@android:color/black"
+            android:inputType="textEmailAddress"
             android:textSize="14sp"/>
         <TextView
             android:layout_width="wrap_content"

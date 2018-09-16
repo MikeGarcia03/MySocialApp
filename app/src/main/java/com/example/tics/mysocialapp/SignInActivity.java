@@ -13,7 +13,7 @@ import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 
-public class LogInActivity extends AppCompatActivity {
+public class SignInActivity extends AppCompatActivity {
 
     private FirebaseAuth firebaseAuth = FirebaseAuth.getInstance();
     private EditText emailEtxt;
@@ -22,7 +22,7 @@ public class LogInActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_log_in);
+        setContentView(R.layout.activity_sign_in);
 
         emailEtxt = findViewById(R.id.emailEditText);
         passEtxt = findViewById(R.id.passwordEditText);
@@ -36,10 +36,13 @@ public class LogInActivity extends AppCompatActivity {
                             @Override
                             public void onComplete(@NonNull Task<AuthResult> task) {
                                 if(task.isSuccessful()){
-                                    startActivity(new Intent(LogInActivity.this,NewPostActivity.class));
-                                    Toast.makeText(LogInActivity.this, "Process finished successful", Toast.LENGTH_LONG).show();
+                                    startActivity(new Intent(SignInActivity.this,
+                                            PostListActivity.class));
+                                    Toast.makeText(SignInActivity.this,
+                                            "Process finished successful", Toast.LENGTH_LONG).show();
                                 } else {
-                                    Toast.makeText(LogInActivity.this, "Pass o Usuario incorrecto", Toast.LENGTH_LONG).show();
+                                    Toast.makeText(SignInActivity.this,
+                                            "Pass o Usuario incorrecto", Toast.LENGTH_LONG).show();
                                 }
                             }
                         });
@@ -49,7 +52,7 @@ public class LogInActivity extends AppCompatActivity {
         findViewById(R.id.signupButton).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Intent i = new Intent(LogInActivity.this, SignUpActivity.class);
+                Intent i = new Intent(SignInActivity.this, SignUpActivity.class);
                 startActivity(i);
             }
         });

@@ -12,14 +12,11 @@ import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.text.TextUtils;
-import android.util.Log;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.Toast;
-
-import com.example.tics.mysocialapp.model.Post;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationCallback;
 import com.google.android.gms.location.LocationRequest;
@@ -31,12 +28,10 @@ import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.storage.FirebaseStorage;
-import com.google.firebase.storage.OnProgressListener;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
 import com.myhexaville.smartimagepicker.ImagePicker;
 import com.myhexaville.smartimagepicker.OnImagePickedListener;
-
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -69,10 +64,10 @@ public class NewPostActivity extends AppCompatActivity {
         addressLocation = findViewById(R.id.postLocation);
         titleEdiTxt = findViewById(R.id.postTitleEditText);
         descriptionEdiTxt = findViewById(R.id.descriptionPostEditText);
+        mFirestore = FirebaseFirestore.getInstance();
         fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(this);
         locationRequest = new LocationRequest();
         locationCallback = new LocationCallback() {
-
 
             @Override
             public void onLocationResult(LocationResult locationResult) {
@@ -93,14 +88,11 @@ public class NewPostActivity extends AppCompatActivity {
                 submitImageToStorage();
             }
         });
-
-        mFirestore = FirebaseFirestore.getInstance();
     }
 
     private void submitPost() {
         final String title = titleEdiTxt.getText().toString();
         final String description = descriptionEdiTxt.getText().toString();
-        submitImageToStorage();
 
         if (TextUtils.isEmpty(title)) {
             titleEdiTxt.setError(REQUIRED);
@@ -204,10 +196,10 @@ public class NewPostActivity extends AppCompatActivity {
                 if (task.isSuccessful()) {
                     Uri downloadUri = task.getResult();
                     imageUrl = downloadUri.toString();
+                    submitPost();
                 }
             }
         });
-        submitPost();
     }
 
     @Override
